@@ -154,11 +154,11 @@ function collectDOMStat(root) {
 
   const addStat = function (statProp, objValue) {
     if (!objValue) {
-      stat[statProp] += 1;
+      ++stat[statProp];
       return;
     }
     if (stat[statProp][objValue]) {
-      stat[statProp][objValue] += 1;
+      ++stat[statProp][objValue];
     } else {
       stat[statProp][objValue] = 1;
     }
@@ -219,10 +219,10 @@ function observeChildNodes(where, fn) {
   const observer = new MutationObserver((mutations) => {
     const obj = {};
     for (const mutation of mutations) {
-      if (mutation.addedNodes.length !== 0) {
+      if (mutation.addedNodes.length) {
         obj.type = 'insert';
         obj.nodes = Array.from(mutation.addedNodes);
-      } else if (mutation.removedNodes.length !== 0) {
+      } else if (mutation.removedNodes.length) {
         obj.type = 'remove';
         obj.nodes = Array.from(mutation.removedNodes);
       }
