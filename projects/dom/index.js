@@ -215,7 +215,23 @@ function collectDOMStat(root) {
      nodes: [div]
    }
  */
-function observeChildNodes(where, fn) {}
+function observeChildNodes(where, fn) {
+  const observer = new MutationObserver((mutations) => {
+    const obj = {};
+    for (const mutation of mutations) {
+      if (mutation.addedNodes.length !== 0) {
+        obj.type = 'insert';
+        obj.nodes = Array.from(mutation.addedNodes);
+      } else if (mutation.removedNodes.length !== 0) {
+        obj.type = 'remove';
+        obj.nodes = Array.from(mutation.removedNodes);
+      }
+    }
+    fn(obj);
+  });
+
+  observer.observe(where, { subtree: true, childList: true });
+}
 
 export {
   createDivWithText,
