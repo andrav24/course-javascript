@@ -49,15 +49,6 @@ function loadAndSortTowns() {
       }
     });
   });
-
-  towns.then((response) => {
-    response.sort((a, b) => {
-      const x = a.name.toLowerCase();
-      const y = b.name.toLowerCase();
-      return x < y ? -1 : x > y ? 1 : 0;
-    });
-  });
-
   xhr.send();
   return towns;
 }
