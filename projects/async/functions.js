@@ -35,11 +35,17 @@ function loadAndSortTowns() {
   xhr.responseType = 'json';
 
   const towns = new Promise((resolve, reject) => {
-    xhr.addEventListener('load', e => {
+    xhr.addEventListener('load', (e) => {
       if (xhr.status >= 400) {
         reject(xhr.responseText);
       } else {
-        resolve(xhr.response);
+        const res = xhr.response;
+        res.sort((a, b) => {
+          const x = a.name.toLowerCase();
+          const y = b.name.toLowerCase();
+          return x < y ? -1 : x > y ? 1 : 0;
+        });
+        resolve(res);
       }
     });
   });

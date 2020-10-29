@@ -40,6 +40,33 @@ const homeworkContainer = document.querySelector('#homework-container');
  https://raw.githubusercontent.com/smelukov/citiesTest/master/cities.json
  */
 function loadTowns() {
+  const url = 'https://raw.githubusercontent.com/smelukov/citiesTest/master/cities.json';
+  const method = 'GET';
+  const xhr = new XMLHttpRequest();
+  xhr.open(method, url);
+  xhr.responseType = 'json';
+
+  const towns = new Promise((resolve, reject) => {
+    xhr.addEventListener('error', () => {
+      reject();
+    });
+    xhr.addEventListener('load', (e) => {
+      if (xhr.status >= 400) {
+        reject(xhr.responseText);
+      } else {
+        const res = xhr.response;
+        res.sort((a, b) => {
+          const x = a.name.toLowerCase();
+          const y = b.name.toLowerCase();
+          return x < y ? -1 : x > y ? 1 : 0;
+        });
+        resolve(res);
+      }
+    });
+  });
+
+  xhr.send();
+  return towns;
 }
 
 /*
@@ -54,6 +81,9 @@ function loadTowns() {
    isMatching('Moscow', 'Moscov') // false
  */
 function isMatching(full, chunk) {
+  chunk = chunk.replace(/([.?*+^$[\]\\(){}|-])/g, '\\$1');
+  const regexp = new RegExp(chunk, 'i');
+  return regexp.test(full);
 }
 
 /* Блок с надписью "Загрузка" */
@@ -69,10 +99,51 @@ const filterInput = homeworkContainer.querySelector('#filter-input');
 /* Блок с результатами поиска */
 const filterResult = homeworkContainer.querySelector('#filter-result');
 
-retryButton.addEventListener('click', () => {
+const onSuccess = function () {
+  loadingBlock.classList.toggle('hidden');
+  filterBlock.classList.toggle('hidden');
+  filterInput.focus();
+};
+const onFailure = function () {
+  loadingBlock.classList.toggle('hidden');
+  loadingFailedBlock.classList.toggle('hidden');
+  retryButton.focus();
+};
+
+let towns = loadTowns();
+towns
+  .then(() => {
+    onSuccess();
+  })
+  .catch(() => {
+    onFailure();
+  });
+
+retryButton.addEventListener('click', (e) => {
+  loadingFailedBlock.classList.toggle('hidden');
+  loadingBlock.classList.toggle('hidden');
+  towns = loadTowns();
+  towns
+    .then(() => {
+      onSuccess();
+    })
+    .catch(() => {
+      onFailure();
+    });
 });
 
-filterInput.addEventListener('input', function () {
+filterInput.addEventListener('input', function (e) {
+  towns.then((array) => {
+    const arrTownsToShow = array.filter(
+      (item) => e.target.value && isMatching(item.name, e.target.value)
+    );
+    filterResult.innerHTML = '';
+    for (const town of arrTownsToShow) {
+      const div = document.createElement('div');
+      div.textContent = town.name;
+      filterResult.appendChild(div);
+    }
+  });
 });
 
 loadingFailedBlock.classList.add('hidden');
