@@ -4,13 +4,57 @@
     <meta charset="UTF-8">
     <title><%= htmlWebpackPlugin.options.title %></title>
     <style>
+        body {
+            text-align: center;
+            padding-top: 20px;
+        }
         body,
         ::placeholder {
             font-family: Geneva, Arial, Helvetica, sans-serif;
+            font-size: 16px;
         }
 
         .hidden {
             display: none !important;
+        }
+
+        #loading-block {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        #filter-input {
+            font-size: 16px;
+            height: 32px;
+            width: 220px;
+            border-radius: 5px;
+            outline: none;
+            border: 2px solid #4949d9;
+            padding: 0 10px;
+            margin-bottom: 20px;
+        }
+
+        #filter-result {
+            width: 50%;
+            margin: 0 auto;
+        }
+
+        #loading-failed div {
+            margin-bottom: 20px;
+        }
+
+        #retry-button {
+            padding: 10px 20px;
+            background-color: #5f6365;
+            color: white;
+            font-size: 16px;
+            border: none;
+            outline: none;
+            cursor: pointer;
+        }
+
+        #retry-button:active {
+            transform: translateX(1px) translateY(-1px);
         }
     </style>
 </head>
