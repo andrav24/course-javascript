@@ -35,11 +35,14 @@ function loadAndSortTowns() {
   xhr.responseType = 'json';
 
   const towns = new Promise((resolve, reject) => {
+    xhr.addEventListener('error', () => {
+      reject('Error to get towns');
+    });
     xhr.addEventListener('load', (e) => {
       if (xhr.status >= 400) {
         reject(xhr.responseText);
       } else {
-        const res = xhr.response;
+        const res = [...xhr.response];
         res.sort((a, b) => {
           const x = a.name.toLowerCase();
           const y = b.name.toLowerCase();

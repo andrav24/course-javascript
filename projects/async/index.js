@@ -29,6 +29,7 @@
    homeworkContainer.appendChild(newDiv);
  */
 
+import { loadAndSortTowns } from './functions';
 import './towns.html';
 
 const homeworkContainer = document.querySelector('#homework-container');
@@ -40,33 +41,7 @@ const homeworkContainer = document.querySelector('#homework-container');
  https://raw.githubusercontent.com/smelukov/citiesTest/master/cities.json
  */
 function loadTowns() {
-  const url = 'https://raw.githubusercontent.com/smelukov/citiesTest/master/cities.json';
-  const method = 'GET';
-  const xhr = new XMLHttpRequest();
-  xhr.open(method, url);
-  xhr.responseType = 'json';
-
-  const towns = new Promise((resolve, reject) => {
-    xhr.addEventListener('error', () => {
-      reject();
-    });
-    xhr.addEventListener('load', (e) => {
-      if (xhr.status >= 400) {
-        reject(xhr.responseText);
-      } else {
-        const res = xhr.response;
-        res.sort((a, b) => {
-          const x = a.name.toLowerCase();
-          const y = b.name.toLowerCase();
-          return x < y ? -1 : x > y ? 1 : 0;
-        });
-        resolve(res);
-      }
-    });
-  });
-
-  xhr.send();
-  return towns;
+  return loadAndSortTowns();
 }
 
 /*
@@ -99,54 +74,44 @@ const filterInput = homeworkContainer.querySelector('#filter-input');
 /* Блок с результатами поиска */
 const filterResult = homeworkContainer.querySelector('#filter-result');
 
-const onSuccess = function () {
+retryButton.addEventListener('click', tryToLoad);
+filterInput.addEventListener('input', updateFilter);
+
+function updateFilter(event) {
+  filterResult.innerHTML = '';
+  const townsToShow = towns
+    .filter((town) => event.target.value && isMatching(town.name, event.target.value))
+    .map((town) => {
+      const div = document.createElement('div');
+      div.textContent = town.name;
+      return div;
+    });
+  filterResult.append(...townsToShow);
+}
+
+function onSuccess(res) {
+  towns = [...res];
   loadingBlock.classList.toggle('hidden');
   filterBlock.classList.toggle('hidden');
   filterInput.focus();
-};
-const onFailure = function () {
+}
+
+function onFailure(err) {
   loadingBlock.classList.toggle('hidden');
   loadingFailedBlock.classList.toggle('hidden');
   retryButton.focus();
-};
+}
 
-let towns = loadTowns();
-towns
-  .then(() => {
-    onSuccess();
-  })
-  .catch(() => {
-    onFailure();
-  });
+function tryToLoad() {
+  loadingBlock.classList.remove('hidden');
+  loadingFailedBlock.classList.add('hidden');
+  filterBlock.classList.add('hidden');
+  loadTowns()
+    .then((res) => onSuccess(res))
+    .catch((err) => onFailure(err));
+}
 
-retryButton.addEventListener('click', (e) => {
-  loadingFailedBlock.classList.toggle('hidden');
-  loadingBlock.classList.toggle('hidden');
-  towns = loadTowns();
-  towns
-    .then(() => {
-      onSuccess();
-    })
-    .catch(() => {
-      onFailure();
-    });
-});
-
-filterInput.addEventListener('input', function (e) {
-  towns.then((array) => {
-    const arrTownsToShow = array.filter(
-      (item) => e.target.value && isMatching(item.name, e.target.value)
-    );
-    filterResult.innerHTML = '';
-    for (const town of arrTownsToShow) {
-      const div = document.createElement('div');
-      div.textContent = town.name;
-      filterResult.appendChild(div);
-    }
-  });
-});
-
-loadingFailedBlock.classList.add('hidden');
-filterBlock.classList.add('hidden');
+let towns = [];
+tryToLoad();
 
 export { loadTowns, isMatching };
