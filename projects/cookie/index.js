@@ -45,11 +45,76 @@ const addButton = homeworkContainer.querySelector('#add-button');
 // таблица со списком cookie
 const listTable = homeworkContainer.querySelector('#list-table tbody');
 
+const addCookie = (key, value, expireDate = '') => {
+  let cookie = `${key}=${value}; `;
+  if (expireDate.length) {
+    cookie += `max-age=${expireDate}}`;
+  }
+  document.cookie = cookie;
+};
+
+const deleteCookie = (key) => {
+  const value = '';
+  const exp = '0';
+  addCookie(key, value, exp);
+};
+
+const getMyCookies = () => {
+  return document.cookie.split('; ').map((cookie) => {
+    const [name, value] = cookie.split('=');
+    return { name, value };
+  });
+};
+
+const resetControls = (...controls) => {
+  for (const control of controls) {
+    control.value = '';
+  }
+};
+
+const isMatching = (string, pattern) => {
+  const regexp = new RegExp(pattern, 'i');
+  return regexp.test(string);
+};
+
+const updateTable = () => {
+  const cookies = getMyCookies();
+  const pattern = filterNameInput.value;
+  listTable.innerHTML = cookies
+    .filter(
+      (cookie) => isMatching(cookie.name, pattern) || isMatching(cookie.value, pattern)
+    )
+    .reduce(
+      (acc, cookie) =>
+        (acc += `
+      <tr>
+        <td class="name">${cookie.name}</td>
+        <td class="value">${cookie.value}</td>
+        <td><button>Удалить</button></td>
+      </tr>`),
+      ''
+    );
+};
+
 filterNameInput.addEventListener('input', function () {
+  updateTable();
 });
 
 addButton.addEventListener('click', () => {
+  const key = addNameInput.value.trim();
+  const value = addValueInput.value;
+  addCookie(key, value);
+  resetControls(addNameInput, addValueInput);
+  updateTable();
 });
 
 listTable.addEventListener('click', (e) => {
+  let parent = e.target.parentElement;
+  do {
+    if (parent.tagName === 'TR') {
+      const name = parent.querySelector('.name');
+      deleteCookie(name.textContent);
+      updateTable();
+    }
+  } while ((parent = parent.parentElement));
 });
