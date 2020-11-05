@@ -60,16 +60,12 @@ const deleteCookie = (key) => {
 };
 
 const getMyCookies = () => {
+  const cookies = document.cookie;
+  if (!cookies.length) return [];
   return document.cookie.split('; ').map((cookie) => {
     const [name, value] = cookie.split('=');
     return { name, value };
   });
-};
-
-const resetControls = (...controls) => {
-  for (const control of controls) {
-    control.value = '';
-  }
 };
 
 const isMatching = (string, pattern) => {
@@ -79,6 +75,7 @@ const isMatching = (string, pattern) => {
 
 const updateTable = () => {
   const cookies = getMyCookies();
+  if (!cookies) return false;
   const pattern = filterNameInput.value;
   listTable.innerHTML = cookies
     .filter(
@@ -88,8 +85,8 @@ const updateTable = () => {
       (acc, cookie) =>
         (acc += `
       <tr>
-        <td class="name">${cookie.name}</td>
-        <td class="value">${cookie.value}</td>
+        <td class="cookie-name">${cookie.name}</td>
+        <td class="cookie-value">${cookie.value}</td>
         <td><button>Удалить</button></td>
       </tr>`),
       ''
@@ -101,19 +98,18 @@ filterNameInput.addEventListener('input', function () {
 });
 
 addButton.addEventListener('click', () => {
-  const key = addNameInput.value.trim();
+  const key = addNameInput.value;
   const value = addValueInput.value;
   addCookie(key, value);
-  resetControls(addNameInput, addValueInput);
   updateTable();
 });
 
 listTable.addEventListener('click', (e) => {
   let parent = e.target.parentElement;
   do {
-    if (parent.tagName === 'TR') {
-      const name = parent.querySelector('.name');
-      deleteCookie(name.textContent);
+    if (e.target.tagName === 'BUTTON' && parent.tagName === 'TR') {
+      const name = parent.querySelector('.cookie-name');
+      deleteCookie(name.innerText);
       updateTable();
     }
   } while ((parent = parent.parentElement));
