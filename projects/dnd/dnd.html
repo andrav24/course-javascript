@@ -1,0 +1,33 @@
+<style>
+    body {
+        margin: 0;
+    }
+    .draggable-div {
+        position: absolute;
+    }
+    .draggable-div:hover {
+        cursor: grabbing;
+    }
+    #app {
+        height: 100vh;
+    }
+    .header {
+        padding: 10px;
+        background-color: #6cb2f6;
+        text-align: center;
+    }
+    #addDiv {
+        padding: 10px 30px;
+        font-size: 16px;
+        font-weight: bold;
+    }
+    .hide {
+        transform:translateX(-9999px);
+    }
+</style>
+
+<div id="app">
+    <div class="header">
+        <button id="addDiv">добавить div</button>
+    </div>
+</div>
