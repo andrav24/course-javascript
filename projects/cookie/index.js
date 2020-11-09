@@ -45,18 +45,13 @@ const addButton = homeworkContainer.querySelector('#add-button');
 // таблица со списком cookie
 const listTable = homeworkContainer.querySelector('#list-table tbody');
 
-const addCookie = (key, value, expireDate = '') => {
-  let cookie = `${key}=${value}; `;
-  if (expireDate.length) {
-    cookie += `max-age=${expireDate}}`;
-  }
-  document.cookie = cookie;
+const addCookie = (key, value) => {
+  document.cookie = `${key}=${value};`;
 };
 
 const deleteCookie = (key) => {
-  const value = '';
-  const exp = '0';
-  addCookie(key, value, exp);
+  const date = new Date(0);
+  document.cookie = `${key}=; path=/; expires="${date.toUTCString()}"`;
 };
 
 const getMyCookies = () => {
@@ -110,7 +105,9 @@ listTable.addEventListener('click', (e) => {
     if (e.target.tagName === 'BUTTON' && parent.tagName === 'TR') {
       const name = parent.querySelector('.cookie-name');
       deleteCookie(name.innerText);
-      updateTable();
+      parent.remove();
     }
   } while ((parent = parent.parentElement));
 });
+
+updateTable();
